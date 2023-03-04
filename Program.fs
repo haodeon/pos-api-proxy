@@ -8,13 +8,19 @@ open Azure.Identity
 [<EntryPoint>]
 let main args =
     let builder = WebApplication.CreateBuilder(args)
-    builder.Services.AddReverseProxy()
+
+    builder.Services
+        .AddReverseProxy()
         .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
-        |> ignore
+    |> ignore
+
     builder.Services.AddAzureClients(fun clientBuilder ->
-        clientBuilder.UseCredential(new DefaultAzureCredential()) |> ignore
-        clientBuilder.AddServiceBusClientWithNamespace |> ignore
-        )
+        clientBuilder.UseCredential(new DefaultAzureCredential(true)) |> ignore
+
+        clientBuilder.AddServiceBusClient(builder.Configuration.GetSection("ServiceBus"))
+        |> ignore)
+
+    builder.Services.AddControllers() |> ignore
     let app = builder.Build()
 
     app.MapGet("/", Func<string>(fun () -> "Hello World!")) |> ignore
@@ -22,4 +28,3 @@ let main args =
     app.Run()
 
     0 // Exit code
-
