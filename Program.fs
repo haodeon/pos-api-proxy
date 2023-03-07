@@ -4,6 +4,7 @@ open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Azure
 open Azure.Identity
+open Cache
 
 [<EntryPoint>]
 let main args =
@@ -21,6 +22,7 @@ let main args =
         |> ignore)
 
     builder.Services.AddControllers() |> ignore
+    builder.Services.AddHostedService<Service>() |> ignore
     let app = builder.Build()
 
     app.MapGet("/", Func<string>(fun () -> "Hello World!")) |> ignore
