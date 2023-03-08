@@ -3,11 +3,12 @@ module Cache
 open System
 open System.Threading
 open Microsoft.Extensions.Hosting
+open Microsoft.Extensions.Configuration
 open Azure.Messaging.ServiceBus
 
-type Service(client: ServiceBusClient) =
+type Service(client: ServiceBusClient, config: IConfiguration) =
     inherit BackgroundService()
-    let processor = client.CreateProcessor("alertqueue")
+    let processor = client.CreateProcessor(config.GetValue<string>("ServiceBus:queueName"))
 
     let MessageHandler (args: ProcessMessageEventArgs) =
         task {
